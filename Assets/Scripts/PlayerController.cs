@@ -4,16 +4,26 @@ using UnityEngine;
 [RequireComponent(typeof(Rigidbody))]
 public class PlayerController : MonoBehaviour
 {
-    [Header("Movement")]
+    [Header("Walk")]
     [SerializeField] private float walkMaxSpeed = 5f;
 
-    [SerializeField] private float walkAcceleration = 8f;
+    [SerializeField] private float walkAcceleration = 80f;
+    [SerializeField] private float walkRotationSpeed = 10f;
+
+    [Header("Granny")]
+    [SerializeField] private float grannyMaxSpeed = 3f;
+
+    [SerializeField] private float grannyAcceleration = 40f;
+    [SerializeField] private float grannyRotationSpeed = 5f;
 
     [Header("Visuals")]
     [SerializeField] private Transform model;
 
     [SerializeField] private Transform wheelchairPivot;
-    [SerializeField] private float rotationSpeed = 2f;
+
+    private float MaxSpeed => _isGrabbingGranny ? grannyMaxSpeed : walkMaxSpeed;
+    private float Acceleration => _isGrabbingGranny ? grannyAcceleration : walkAcceleration;
+    private float RotationSpeed => _isGrabbingGranny ? grannyRotationSpeed : walkRotationSpeed;
 
     private Rigidbody _rigidbody;
     private InputReader _input;
@@ -29,10 +39,6 @@ public class PlayerController : MonoBehaviour
         _input = new InputReader();
         _rigidbody = GetComponent<Rigidbody>();
         _collider = GetComponent<Collider>();
-    }
-
-    private void Start()
-    {
     }
 
     private void Update()
@@ -63,23 +69,20 @@ public class PlayerController : MonoBehaviour
 
     private void RotateModel()
     {
-        /*Vector3 targetRotation = _rigidbody.velocity.normalized;
-        model.forward = Vector3.Lerp(model.forward, _in, Time.deltaTime * rotationSpeed);*/
-
         Vector2 playerViewPort = Camera.main.WorldToViewportPoint(transform.position);
         var viewportDirection = (_input.Aim - playerViewPort).normalized;
         var aimDirection = new Vector3(viewportDirection.x, 0f, viewportDirection.y);
 
         model.forward =
-            Vector3.Lerp(model.forward, aimDirection, Time.deltaTime * rotationSpeed);
+            Vector3.Lerp(model.forward, aimDirection, Time.deltaTime * RotationSpeed);
     }
 
     private void FixedUpdate()
     {
-        _rigidbody.AddForce(_movement * walkAcceleration, ForceMode.Acceleration);
+        _rigidbody.AddForce(_movement * Acceleration, ForceMode.Acceleration);
 
-        if (_rigidbody.velocity.magnitude > walkMaxSpeed)
-            _rigidbody.velocity = _rigidbody.velocity.normalized * walkMaxSpeed;
+        if (_rigidbody.velocity.magnitude > MaxSpeed)
+            _rigidbody.velocity = _rigidbody.velocity.normalized * MaxSpeed;
     }
 
     private void OnTriggerEnter(Collider other)
@@ -90,8 +93,7 @@ public class PlayerController : MonoBehaviour
 
     private void OnTriggerExit(Collider other)
     {
-        if (_grannyController == null || !other.TryGetComponent(out GrannyController grannyController)) return;
-        // _grannyController.Release();
-        // _grannyController = null;
+        if (!_isGrabbingGranny && other.TryGetComponent(out GrannyController grannyController))
+            _grannyController = null;
     }
 }
