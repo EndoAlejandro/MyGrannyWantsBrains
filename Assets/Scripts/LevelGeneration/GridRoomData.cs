@@ -17,14 +17,14 @@ namespace LevelGeneration
         {
             switch (direction)
             {
-                case var _ when direction == Vector2Int.down:
+                case var _ when direction == Vector2Int.up:
                     _directions.x = 1;
                     break;
 
                 case var _ when direction == Vector2Int.right:
                     _directions.y = 1;
                     break;
-                case var _ when direction == Vector2Int.up:
+                case var _ when direction == Vector2Int.down:
                     _directions.z = 1;
                     break;
                 case var _ when direction == Vector2Int.left:

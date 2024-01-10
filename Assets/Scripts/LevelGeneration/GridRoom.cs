@@ -6,18 +6,18 @@ namespace LevelGeneration
     {
         [SerializeField] private Vector4 directions;
 
-        private GridRoomVariant[] _variants;
+        private RoomVariant[] _variants;
         public Vector4 Directions => directions;
 
-        private void Awake() => _variants = GetComponentsInChildren<GridRoomVariant>(true);
+        private void Awake() => _variants = GetComponentsInChildren<RoomVariant>(true);
 
-        public GridRoomVariant GetRandomVariant()
+        public RoomVariant GetRandomVariant()
         {
-            _variants = GetComponentsInChildren<GridRoomVariant>(true);
+            _variants = GetComponentsInChildren<RoomVariant>(true);
             int index = Random.Range(0, _variants.Length);
             return GetVariant(index);
         }
 
-        private GridRoomVariant GetVariant(int index) => _variants[index];
+        private RoomVariant GetVariant(int index) => _variants[index];
     }
 }

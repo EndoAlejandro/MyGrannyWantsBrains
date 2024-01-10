@@ -1,9 +1,15 @@
 using System;
+using CustomUtils;
 using UnityEngine;
 
 [RequireComponent(typeof(Rigidbody))]
 public class PlayerController : MonoBehaviour
 {
+    public static event Action<PlayerController> OnPlayerSpawn;
+    public static event Action<bool> OnGrannyGrab;
+
+    public float NormalizedSpeed => _rigidbody != null ? _rigidbody.velocity.magnitude / MaxSpeed : 0f;
+
     [Header("Walk")]
     [SerializeField] private float walkMaxSpeed = 5f;
 
@@ -41,16 +47,15 @@ public class PlayerController : MonoBehaviour
         _collider = GetComponent<Collider>();
     }
 
+    private void Start()
+    {
+        OnPlayerSpawn?.Invoke(this);
+    }
+
     private void Update()
     {
-        _movement = new Vector3(_input.Movement.x, 0f, _input.Movement.y).normalized;
-        RotateModel();
-
         if (!_grannyController) return;
-        if (_input.Grab)
-        {
-            ToggleGrab();
-        }
+        if (_input.Grab) ToggleGrab();
     }
 
     private void ToggleGrab()
@@ -65,20 +70,32 @@ public class PlayerController : MonoBehaviour
             _isGrabbingGranny = false;
             _grannyController.Release();
         }
+
+        OnGrannyGrab?.Invoke(_isGrabbingGranny);
     }
 
     private void RotateModel()
     {
-        Vector2 playerViewPort = Camera.main.WorldToViewportPoint(transform.position);
-        var viewportDirection = (_input.Aim - playerViewPort).normalized;
-        var aimDirection = new Vector3(viewportDirection.x, 0f, viewportDirection.y);
+        Vector3 aimDirection = transform.forward;
 
-        model.forward =
-            Vector3.Lerp(model.forward, aimDirection, Time.deltaTime * RotationSpeed);
+        if (_isGrabbingGranny)
+        {
+            Vector2 playerViewPort = Camera.main.WorldToViewportPoint(transform.position);
+            var viewportDirection = (_input.Aim - playerViewPort).normalized;
+            aimDirection = new Vector3(viewportDirection.x, 0f, viewportDirection.y);
+        }
+        else if (_rigidbody.velocity.magnitude > .5f)
+            aimDirection = _rigidbody.velocity.With(y: 0f).normalized;
+
+        transform.forward =
+            Vector3.Lerp(transform.forward, aimDirection, Time.deltaTime * RotationSpeed);
     }
 
     private void FixedUpdate()
     {
+        _movement = new Vector3(_input.Movement.x, 0f, _input.Movement.y).normalized;
+        RotateModel();
+
         _rigidbody.AddForce(_movement * Acceleration, ForceMode.Acceleration);
 
         if (_rigidbody.velocity.magnitude > MaxSpeed)
@@ -95,5 +112,10 @@ public class PlayerController : MonoBehaviour
     {
         if (!_isGrabbingGranny && other.TryGetComponent(out GrannyController grannyController))
             _grannyController = null;
+    }
+
+    public void TakeDamage(float damage)
+    {
+        Debug.Log(damage);
     }
 }

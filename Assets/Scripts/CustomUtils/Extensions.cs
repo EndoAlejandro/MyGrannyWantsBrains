@@ -1,7 +1,7 @@
 ﻿using System.Collections.Generic;
 using UnityEngine;
 
-namespace DarkHavoc.CustomUtils
+namespace CustomUtils
 {
     public static class TransformExtensions
     {

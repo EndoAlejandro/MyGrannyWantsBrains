@@ -1,6 +1,9 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using DarkHavoc.CustomUtils;
+using Unity.AI.Navigation;
 using UnityEngine;
+using UnityEngine.AI;
 using UnityEngine.Serialization;
 using UnityEngine.Tilemaps;
 using Random = UnityEngine.Random;
@@ -15,6 +18,8 @@ namespace LevelGeneration
         [SerializeField] private Transform globalRooms;
         [SerializeField] private Transform prefabRoomsPool;
 
+        private NavMeshSurface _navMesh;
+        
         private GridRoom[] _prefabGridRooms;
         private GridRoomData[,] _roomDataMatrix;
 
@@ -28,6 +33,8 @@ namespace LevelGeneration
 
         protected override void SingletonAwake()
         {
+            _navMesh = GetComponentInChildren<NavMeshSurface>();
+            
             _roomDataMatrix = new GridRoomData[levelSize.x, levelSize.y + 2];
 
             // Non-Tile objects
@@ -49,9 +56,12 @@ namespace LevelGeneration
 
             CalculateMainPath();
             CalculateSecondaryPath();
-            InstantiateTiles();
+            InstantiateRooms();
 
             SetRoomsPrefabsState(false);
+            
+            _navMesh.RemoveData();
+            _navMesh.BuildNavMesh();
         }
 
         private void SetRoomsPrefabsState(bool state)
@@ -59,7 +69,7 @@ namespace LevelGeneration
             foreach (var room in _prefabGridRooms) room.gameObject.SetActive(state);
         }
 
-        private void InstantiateTiles()
+        private void InstantiateRooms()
         {
             for (int i = 0; i < _roomDataMatrix.GetLength(0); i++)
             for (int j = 0; j < _roomDataMatrix.GetLength(1); j++)
@@ -67,12 +77,13 @@ namespace LevelGeneration
                 var dataRoom = _roomDataMatrix[i, j];
                 if (dataRoom == null) continue;
 
-                GridRoomVariant selectedPrefabGridRoomVariant = SelectPrefabGridRoom(dataRoom);
-                CopyGridRoomLayers(selectedPrefabGridRoomVariant, i, j);
+                RoomVariant selectedPrefabRoomVariant = SelectPrefabGridRoom(dataRoom);
+                var offsetPosition = new Vector3Int(roomSize.x * i, 0, roomSize.y * j);
+                Instantiate(selectedPrefabRoomVariant, offsetPosition, Quaternion.identity, globalRooms);
             }
         }
 
-        private GridRoomVariant SelectPrefabGridRoom(GridRoomData dataRoom)
+        private RoomVariant SelectPrefabGridRoom(GridRoomData dataRoom)
         {
             GridRoom selectedPrefabGridRoomVariant = _prefabGridRooms[0];
 
@@ -86,48 +97,10 @@ namespace LevelGeneration
             return selectedPrefabGridRoomVariant.GetRandomVariant();
         }
 
-        private void CopyGridRoomLayers(GridRoomVariant prefabGridRoomVariant, int x, int y)
+        // TODO: Check if add instantiables is needed.
+        private void AddInstantiables(RoomVariant prefabRoomVariant, int x, int y)
         {
-            var tileLayers = prefabGridRoomVariant.GetTileLayers();
-            foreach (var tilemap in tileLayers)
-            {
-                if (!_globalTilemaps.ContainsKey(tilemap.tag)) continue;
-                CopyGridRoomLayer(tilemap, _globalTilemaps[tilemap.tag], x, y);
-            }
-
-            AddSpawnPoints(prefabGridRoomVariant, x, y);
-            AddInstantiables(prefabGridRoomVariant, x, y);
-        }
-
-        private void CopyGridRoomLayer(Tilemap source, Tilemap target, int x, int y)
-        {
-            foreach (Vector3Int position in source.cellBounds.allPositionsWithin)
-            {
-                TileBase tile = source.GetTile(position);
-                if (tile == null) continue;
-
-                var offsetPosition = new Vector3Int(position.x + roomSize.x * x,
-                    position.y - roomSize.y * y, position.z);
-                target.SetTile(offsetPosition, tile);
-            }
-        }
-
-        private void AddSpawnPoints(GridRoomVariant prefabGridRoomVariant, int x, int y)
-        {
-            Transform[] localSpawnPoints = prefabGridRoomVariant.GetSpawnPoints();
-
-            foreach (var spawnPoint in localSpawnPoints)
-            {
-                Vector3 localPosition = spawnPoint.position;
-                Vector3 offsetPosition = new Vector3(localPosition.x + roomSize.x * x, localPosition.y - roomSize.y * y,
-                    localPosition.z);
-                WorldPositionSpawnPoints.Add(offsetPosition);
-            }
-        }
-
-        private void AddInstantiables(GridRoomVariant prefabGridRoomVariant, int x, int y)
-        {
-            Transform[] localInstantiables = prefabGridRoomVariant.GetInstantiables();
+            Transform[] localInstantiables = prefabRoomVariant.GetInstantiables();
 
             foreach (var instantiable in localInstantiables)
             {
@@ -198,6 +171,8 @@ namespace LevelGeneration
             {
                 var currentPosition = _roomDataMatrix[i, j];
                 if (currentPosition != null) continue;
+                if (Random.Range(0f, 1f) < .25f) continue;
+
                 if (i > 0)
                 {
                     if (TryToAddSecondaryRoom(i, j, -1)) continue;
@@ -241,26 +216,22 @@ namespace LevelGeneration
                 return Random.Range(0f, 1f) > .5f ? Vector2Int.up : Vector2Int.right;
             if (!rightCheck & bottomCheck & leftCheck)
                 return Random.Range(0f, 1f) > .5f ? Vector2Int.up : Vector2Int.left;
+
             if (rightCheck & bottomCheck & leftCheck)
             {
                 float prob = Random.Range(0f, 1f);
                 return prob switch
                 {
-                    > .66f => Vector2Int.up,
+                    > .66f => Vector2Int.right,
                     > .33f => Vector2Int.left,
-                    _ => Vector2Int.right
+                    _ => Vector2Int.up
                 };
             }
 
             return Vector2Int.zero;
         }
 
-        public Vector2 GetWorldPosition(GridRoomData data) =>
-            new(roomSize.x * data.Position.x, roomSize.y * -data.Position.y);
-
-        public CompositeCollider2D GetLevelBounds() =>
-            _globalTilemaps["CameraCollider"].TryGetComponent(out CompositeCollider2D collider)
-                ? collider
-                : null;
+        public Vector3 GetWorldPosition(GridRoomData data) =>
+            new(roomSize.x * data.Position.x, 0f, roomSize.y * -data.Position.y);
     }
 }

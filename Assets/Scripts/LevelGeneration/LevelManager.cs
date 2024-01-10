@@ -7,9 +7,10 @@ namespace LevelGeneration
 {
     public class LevelManager : Singleton<LevelManager>
     {
-        [SerializeField] private float spawnPointOffset;
+        [SerializeField] private PlayerController playerPrefab;
+        [SerializeField] private GrannyController grannyPrefab;
+        
         //[SerializeField] private ExitDoor exitDoorPrefab;
-
         // [SerializeField] private BiomeBestiary bestiary;
 
         private LevelGenerator _levelGenerator;
@@ -64,9 +65,8 @@ namespace LevelGeneration
         private void CreatePlayer()
         {
             var playerSpawnPoint = _levelGenerator.GetWorldPosition(_levelGenerator.InitialRoom);
-            playerSpawnPoint.y += spawnPointOffset;
-            PlayerController playerPrefab = null; //_gameManager.PlayerPrefab;
             var player = Instantiate(playerPrefab, playerSpawnPoint, Quaternion.identity);
+            var granny = Instantiate(grannyPrefab, playerSpawnPoint + Vector3.forward, Quaternion.identity);
         }
 
         public void ExitLevel()

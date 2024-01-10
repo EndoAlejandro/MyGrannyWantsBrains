@@ -1,18 +1,26 @@
-using System;
 using UnityEngine;
 
 [RequireComponent(typeof(Rigidbody))]
 [RequireComponent(typeof(Collider))]
 public class GrannyController : MonoBehaviour
 {
+    [SerializeField] private Bullet bulletPrefab;
+    [SerializeField] private float damage = 1f;
+    [SerializeField] private float bulletSpeed = 10f;
+    [SerializeField] private Transform[] nozzles;
+
     private Collider[] _colliders;
     private Rigidbody _rigidbody;
     private Collider _playerCollider;
 
     private bool _grabbed;
 
+    private InputReader _input;
+
     private void Awake()
     {
+        _input = new InputReader();
+
         _rigidbody = GetComponent<Rigidbody>();
         _colliders = GetComponentsInChildren<Collider>();
     }
@@ -20,7 +28,15 @@ public class GrannyController : MonoBehaviour
     private void Update()
     {
         if (!_grabbed) return;
+        if (_input.Shoot) Shoot();
         ResetTransform();
+    }
+
+    private void Shoot()
+    {
+        Transform randomNozzle = nozzles[Random.Range(0, nozzles.Length)];
+        Bullet bullet = Instantiate(bulletPrefab, randomNozzle.position, randomNozzle.rotation);
+        bullet.Setup(damage, bulletSpeed);
     }
 
     public void Grab(Transform newParent, Collider playerCollider)
