@@ -10,6 +10,7 @@ namespace Pooling
         private void OnEnable()
         {
             _particleSystem ??= GetComponent<ParticleSystem>();
+            if (_particleSystem == null) _particleSystem = GetComponentInChildren<ParticleSystem>();
             _particleSystem.Stop();
             _particleSystem.Play();
             ReturnToPool(delay);

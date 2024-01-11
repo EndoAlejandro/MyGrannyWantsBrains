@@ -6,6 +6,9 @@ using UnityEngine.AI;
 public class Zombie : MonoBehaviour
 {
     public event Action OnAttack;
+    public event Action OnDead;
+
+    [SerializeField] private float maxHealth;
 
     [SerializeField] private float damage = 1f;
     [SerializeField] private float attackTime = 2f;
@@ -13,16 +16,26 @@ public class Zombie : MonoBehaviour
 
     private NavMeshAgent _navMeshAgent;
     private PlayerController _player;
+    private Collider _collider;
+
+    private float health;
 
     public void Setup(PlayerController player)
     {
+        VfxManager.Instance.PlayFx(Vfx.ZombieSpawn, transform.position);
+
+        _collider = GetComponent<Collider>();
         _navMeshAgent = GetComponent<NavMeshAgent>();
         _player = player;
+
+        health = maxHealth;
     }
 
     private void Update()
     {
         if (_player == null) return;
+        if (health <= 0f) return;
+
         _navMeshAgent.SetDestination(_player.transform.position);
 
         if (Vector3.Distance(transform.position, _player.transform.position) <= 1.1f)
@@ -57,5 +70,27 @@ public class Zombie : MonoBehaviour
     public void AttackEnded()
     {
         _navMeshAgent.isStopped = false;
+    }
+
+    public void TakeDamage(float incomingDamage)
+    {
+        health = Mathf.Max(health - incomingDamage, 0f);
+        VfxManager.Instance.PlayFx(Vfx.ZombieTakeDamage, transform.position + Vector3.up);
+
+        if (health <= 0f)
+        {
+            _collider.enabled = false;
+            _navMeshAgent.enabled = false;
+            StartCoroutine(DespawnAsync());
+            OnDead?.Invoke();
+        }
+    }
+
+    private IEnumerator DespawnAsync()
+    {
+        yield return new WaitForSeconds(2f);
+        VfxManager.Instance.PlayFx(Vfx.ZombieDespawn, transform.position);
+        yield return null;
+        Destroy(gameObject);
     }
 }

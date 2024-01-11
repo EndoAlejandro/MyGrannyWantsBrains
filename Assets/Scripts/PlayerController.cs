@@ -127,6 +127,7 @@ public class PlayerController : MonoBehaviour
     {
         Health = Mathf.Max(Health - damage, 0f);
 
+        VfxManager.Instance.PlayFx(Vfx.PlayerTakeDamage, transform.position + Vector3.up);
         if (Health <= 0f)
         {
             _input.DisableInput();

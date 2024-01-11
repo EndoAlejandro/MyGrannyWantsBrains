@@ -7194,8 +7194,8 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   playerTakeDamage: {fileID: 2949129767000783261, guid: 43516946985f1c44395727badea22fb5, type: 3}
   zombieTakeDamage: {fileID: 7980837586508777239, guid: d592f673b7671b744a7e865be5532d1f, type: 3}
-  zombieSpawn: {fileID: 5927781061067902083, guid: bf7b250c050b03a4c8072f4381530403, type: 3}
-  zombieDespawn: {fileID: 8958337180079518632, guid: a465f5ab320f01e44a8fed7738025774, type: 3}
+  zombieSpawn: {fileID: 6277542156547538896, guid: fbc64e87d48d7114e9de8deb68fb592d, type: 3}
+  zombieDespawn: {fileID: 65682530908604679, guid: a465f5ab320f01e44a8fed7738025774, type: 3}
   bulletDestroy: {fileID: 6625738835639445699, guid: 615adee113c54394d9e678fa079535cf, type: 3}
   walkDust: {fileID: 8560280446015839346, guid: 2efb0778f2e8ece4fa8df5c67bc80350, type: 3}
 --- !u!4 &1461281728

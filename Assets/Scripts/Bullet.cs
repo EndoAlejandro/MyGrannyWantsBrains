@@ -11,6 +11,7 @@ public class Bullet : MonoBehaviour
     private float _speed;
 
     private IEnumerator _destroyAfterSeconds;
+    private float _damage;
 
     private void Awake()
     {
@@ -21,6 +22,7 @@ public class Bullet : MonoBehaviour
     {
         _rigidbody ??= GetComponent<Rigidbody>();
         _speed = speed;
+        _damage = damage;
         _direction = transform.forward;
 
         _destroyAfterSeconds = DestroyAfterSeconds();
@@ -41,6 +43,7 @@ public class Bullet : MonoBehaviour
 
     private void OnTriggerEnter(Collider other)
     {
+        if (other.TryGetComponent(out Zombie zombie)) zombie.TakeDamage(_damage);
         DestroyBullet();
     }
 
