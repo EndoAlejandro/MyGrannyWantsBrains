@@ -1,3 +1,4 @@
+using System;
 using System.Collections;
 using System.Collections.Generic;
 using DarkHavoc.CustomUtils;
@@ -7,20 +8,27 @@ namespace LevelGeneration
 {
     public class LevelManager : Singleton<LevelManager>
     {
+        public float NormalizedTimer => Timer / maxTime;
+        public float Timer { get; private set; }
+
         [SerializeField] private PlayerController playerPrefab;
         [SerializeField] private GrannyController grannyPrefab;
-        
-        //[SerializeField] private ExitDoor exitDoorPrefab;
-        // [SerializeField] private BiomeBestiary bestiary;
+
+        [SerializeField] private float maxTime = 60;
 
         private LevelGenerator _levelGenerator;
-
         private Vector3 _spawnPoint;
 
         private void Start()
         {
             _levelGenerator = LevelGenerator.Instance;
             StartCoroutine(StartLevelAsync());
+            Timer = maxTime;
+        }
+
+        private void Update()
+        {
+            if (Timer > 0f) Timer -= Time.deltaTime;
         }
 
         private IEnumerator StartLevelAsync()
@@ -28,7 +36,6 @@ namespace LevelGeneration
             yield return null;
             _levelGenerator.GenerateLevel();
             yield return null;
-            SpawnEnemies();
             SpawnInstantiables();
             yield return null;
             CreatePlayer();
@@ -42,18 +49,7 @@ namespace LevelGeneration
             // Instantiate(exitDoorPrefab, position, Quaternion.identity);
         }
 
-        private void SpawnEnemies()
-        {
-            List<Vector3> spawnPoints = _levelGenerator.WorldPositionSpawnPoints;
-
-            foreach (var spawnPoint in spawnPoints)
-            {
-                // TODO: Check if spawn zombies using this.
-                // int index = Random.Range(0, bestiary.Bestiary.Length);
-                // Instantiate(bestiary.Bestiary[index], spawnPoint, Quaternion.identity);
-            }
-        }
-
+        // TODO: Check if necessary.
         private void SpawnInstantiables()
         {
             List<Instantiable> instantiables = _levelGenerator.Instantiables;

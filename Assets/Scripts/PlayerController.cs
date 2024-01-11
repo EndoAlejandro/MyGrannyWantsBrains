@@ -9,6 +9,11 @@ public class PlayerController : MonoBehaviour
     public static event Action<bool> OnGrannyGrab;
 
     public float NormalizedSpeed => _rigidbody != null ? _rigidbody.velocity.magnitude / MaxSpeed : 0f;
+    private static float Health = 1;
+    private static float MaxHealth = 1;
+    public static float NormalizedHealth => Health / MaxHealth;
+
+    [SerializeField] private float maxHealth = 20f;
 
     [Header("Walk")]
     [SerializeField] private float walkMaxSpeed = 5f;
@@ -23,8 +28,6 @@ public class PlayerController : MonoBehaviour
     [SerializeField] private float grannyRotationSpeed = 5f;
 
     [Header("Visuals")]
-    [SerializeField] private Transform model;
-
     [SerializeField] private Transform wheelchairPivot;
 
     private float MaxSpeed => _isGrabbingGranny ? grannyMaxSpeed : walkMaxSpeed;
@@ -49,6 +52,8 @@ public class PlayerController : MonoBehaviour
 
     private void Start()
     {
+        Health = maxHealth;
+        MaxHealth = maxHealth;
         OnPlayerSpawn?.Invoke(this);
     }
 
@@ -116,6 +121,7 @@ public class PlayerController : MonoBehaviour
 
     public void TakeDamage(float damage)
     {
+        Health = Mathf.Max(Health - damage, 0f);
         Debug.Log(damage);
     }
 }

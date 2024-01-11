@@ -24,4 +24,5 @@ public class ZombieAnimation : MonoBehaviour
     }
 
     private void PerformAttack() => _zombie.PerformAttack();
+    private void AttackEnded() => _zombie.AttackEnded();
 }

@@ -49,13 +49,13 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 0dadf5e233745854586848a4ad68a224, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  maxHealth: 20
   walkMaxSpeed: 5
   walkAcceleration: 80
   walkRotationSpeed: 10
   grannyMaxSpeed: 3
   grannyAcceleration: 40
   grannyRotationSpeed: 5
-  model: {fileID: 6350425468436843463}
   wheelchairPivot: {fileID: 6227216089950163961}
 --- !u!114 &6276122626676360763
 MonoBehaviour:
@@ -132,9 +132,9 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   zombiePrefab: {fileID: 3961035976196756549, guid: 8dd26fa2f823e3c42bc01560def79317, type: 3}
-  spawnDistance: 20
+  spawnDistance: 30
   spawnTime: 3
-  spawnAmount: 5
+  spawnAmount: 1
 --- !u!1 &7141074256870190769
 GameObject:
   m_ObjectHideFlags: 0

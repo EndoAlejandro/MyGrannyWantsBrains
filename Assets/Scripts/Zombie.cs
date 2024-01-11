@@ -9,7 +9,7 @@ public class Zombie : MonoBehaviour
 
     [SerializeField] private float damage = 1f;
     [SerializeField] private float attackTime = 2f;
-    [SerializeField] private float attackRadius = 1.25f;
+    [SerializeField] private float attackRadius = 2f;
 
     private NavMeshAgent _navMeshAgent;
     private PlayerController _player;
@@ -36,12 +36,11 @@ public class Zombie : MonoBehaviour
         _navMeshAgent.isStopped = true;
         OnAttack?.Invoke();
         yield return new WaitForSeconds(attackTime);
-        _navMeshAgent.isStopped = false;
     }
 
     public void PerformAttack()
     {
-        var result = Physics.OverlapSphere(transform.position, attackRadius, _player.gameObject.layer);
+        var result = Physics.OverlapSphere(transform.position, attackRadius, ~_player.gameObject.layer);
         for (int i = 0; i < result.Length; i++)
         {
             if (result[i] == null) continue;
@@ -49,7 +48,14 @@ public class Zombie : MonoBehaviour
 
             var forward = transform.forward;
             var direction = (_player.transform.position - transform.position).normalized;
-            if (Vector3.Angle(forward, direction) < 45f) playerController.TakeDamage(damage);
+            var angle = Vector3.Dot(forward, direction);
+            if (angle > .5f)
+                playerController.TakeDamage(damage);
         }
+    }
+
+    public void AttackEnded()
+    {
+        _navMeshAgent.isStopped = false;
     }
 }
