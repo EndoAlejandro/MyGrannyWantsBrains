@@ -14,7 +14,6 @@ public class CameraManager : Singleton<CameraManager>
     protected override void SingletonAwake()
     {
         _camera = GetComponentInChildren<Camera>();
-        playerVirtualCamera = GetComponentInChildren<CinemachineVirtualCamera>();
     }
 
     private void Start()
@@ -25,10 +24,7 @@ public class CameraManager : Singleton<CameraManager>
         PlayerControllerOnGrannyGrab(false);
     }
 
-    private void PlayerControllerOnGrannyGrab(bool isGrabbed)
-    {
-        grannyVirtualCamera.gameObject.SetActive(isGrabbed);
-    }
+    private void PlayerControllerOnGrannyGrab(bool isGrabbed) => grannyVirtualCamera.gameObject.SetActive(isGrabbed);
 
     private void PlayerControllerOnPlayerSpawn(PlayerController player)
     {

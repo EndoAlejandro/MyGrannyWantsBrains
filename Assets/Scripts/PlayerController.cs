@@ -1,4 +1,5 @@
 using System;
+using System.Collections;
 using CustomUtils;
 using UnityEngine;
 
@@ -6,6 +7,7 @@ using UnityEngine;
 public class PlayerController : MonoBehaviour
 {
     public static event Action<PlayerController> OnPlayerSpawn;
+    public static event Action OnPlayerDead;
     public static event Action<bool> OnGrannyGrab;
 
     public float NormalizedSpeed => _rigidbody != null ? _rigidbody.velocity.magnitude / MaxSpeed : 0f;
@@ -43,6 +45,8 @@ public class PlayerController : MonoBehaviour
     private bool _isGrabbingGranny;
     private Collider _collider;
 
+    private bool IsDead => Health <= 0f;
+
     private void Awake()
     {
         _input = new InputReader();
@@ -68,7 +72,7 @@ public class PlayerController : MonoBehaviour
         if (!_isGrabbingGranny)
         {
             _isGrabbingGranny = true;
-            _grannyController.Grab(wheelchairPivot, _collider);
+            _grannyController.Grab(wheelchairPivot, _collider, _input);
         }
         else
         {
@@ -122,6 +126,18 @@ public class PlayerController : MonoBehaviour
     public void TakeDamage(float damage)
     {
         Health = Mathf.Max(Health - damage, 0f);
-        Debug.Log(damage);
+
+        if (Health <= 0f)
+        {
+            _input.DisableInput();
+            OnPlayerDead?.Invoke();
+            StartCoroutine(EndGameAsync());
+        }
+    }
+
+    private IEnumerator EndGameAsync()
+    {
+        yield return new WaitForSeconds(3f);
+        GameManager.Instance.GoToEndScreen(goodEnd: false);
     }
 }

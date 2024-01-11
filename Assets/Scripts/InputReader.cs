@@ -11,8 +11,11 @@ public class InputReader
     public InputReader()
     {
         _input ??= new MainInput();
-        _input.Main.Enable();
+        EnableInput();
     }
+
+    public void EnableInput() => _input.Main.Enable();
+    public void DisableInput() => _input.Main.Disable();
 
     private Vector2 Aiming()
     {

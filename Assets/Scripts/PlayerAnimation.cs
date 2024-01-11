@@ -6,6 +6,7 @@ public class PlayerAnimation : MonoBehaviour
     private PlayerController _player;
     private Animator _animator;
     private static readonly int Speed = Animator.StringToHash("Speed");
+    private static readonly int Dead = Animator.StringToHash("Dead");
 
     private void Awake()
     {
@@ -13,7 +14,13 @@ public class PlayerAnimation : MonoBehaviour
         _animator = GetComponentInChildren<Animator>();
     }
 
-    private void Start() => PlayerController.OnGrannyGrab += PlayerOnGrannyGrab;
+    private void Start()
+    {
+        PlayerController.OnGrannyGrab += PlayerOnGrannyGrab;
+        PlayerController.OnPlayerDead += PlayerControllerOnPlayerDead;
+    }
+
+    private void PlayerControllerOnPlayerDead() => _animator.SetTrigger(Dead);
 
     private void Update()
     {
@@ -25,5 +32,9 @@ public class PlayerAnimation : MonoBehaviour
         _animator.SetLayerWeight(1, isGrabbed ? 1 : 0);
     }
 
-    private void OnDestroy() => PlayerController.OnGrannyGrab -= PlayerOnGrannyGrab;
+    private void OnDestroy()
+    {
+        PlayerController.OnGrannyGrab -= PlayerOnGrannyGrab;
+        PlayerController.OnPlayerDead -= PlayerControllerOnPlayerDead;
+    }
 }

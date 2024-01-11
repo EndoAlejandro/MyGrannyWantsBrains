@@ -49,7 +49,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 0dadf5e233745854586848a4ad68a224, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  maxHealth: 20
+  maxHealth: 5
   walkMaxSpeed: 5
   walkAcceleration: 80
   walkRotationSpeed: 10

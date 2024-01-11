@@ -7,7 +7,7 @@ public class GrannyController : MonoBehaviour
     [SerializeField] private Bullet bulletPrefab;
     [SerializeField] private float damage = 1f;
     [SerializeField] private float bulletSpeed = 10f;
-    [SerializeField] private Transform[] nozzles;
+    [SerializeField] private ParticleSystem[] nozzles;
 
     private Collider[] _colliders;
     private Rigidbody _rigidbody;
@@ -19,8 +19,6 @@ public class GrannyController : MonoBehaviour
 
     private void Awake()
     {
-        _input = new InputReader();
-
         _rigidbody = GetComponent<Rigidbody>();
         _colliders = GetComponentsInChildren<Collider>();
     }
@@ -28,19 +26,23 @@ public class GrannyController : MonoBehaviour
     private void Update()
     {
         if (!_grabbed) return;
-        if (_input.Shoot) Shoot();
+        if (_input is { Shoot: true }) Shoot();
         ResetTransform();
     }
 
     private void Shoot()
     {
-        Transform randomNozzle = nozzles[Random.Range(0, nozzles.Length)];
-        Bullet bullet = Instantiate(bulletPrefab, randomNozzle.position, randomNozzle.rotation);
+        ParticleSystem randomNozzle = nozzles[Random.Range(0, nozzles.Length)];
+        randomNozzle.Stop();
+        randomNozzle.Play();
+        
+        Bullet bullet = Instantiate(bulletPrefab, randomNozzle.transform.position, randomNozzle.transform.rotation);
         bullet.Setup(damage, bulletSpeed);
     }
 
-    public void Grab(Transform newParent, Collider playerCollider)
+    public void Grab(Transform newParent, Collider playerCollider, InputReader input)
     {
+        _input ??= input;
         _playerCollider = playerCollider;
         foreach (Collider collider1 in _colliders)
         {
