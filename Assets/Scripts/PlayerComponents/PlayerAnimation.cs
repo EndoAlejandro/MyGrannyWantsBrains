@@ -31,7 +31,7 @@ public class PlayerAnimation : MonoBehaviour
         _animator.SetLayerWeight(1, isGrabbed ? 1 : 0);
     }
 
-    private void WalkDust() => VfxManager.Instance.PlayFx(Vfx.WalkDust, transform.position);
+    private void WalkDust() => FxManager.Instance.PlayVfx(Vfx.WalkDust, transform.position);
 
     private void OnDestroy()
     {

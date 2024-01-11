@@ -2,6 +2,7 @@ using System;
 using System.Collections;
 using System.Collections.Generic;
 using DarkHavoc.CustomUtils;
+using PlayerComponents;
 using UnityEngine;
 
 namespace LevelGeneration
@@ -29,7 +30,10 @@ namespace LevelGeneration
         private void Update()
         {
             if (Timer > 0f) Timer -= Time.deltaTime;
+            else GameManager.Instance.GoToEndScreen();
         }
+
+        public void ResetTime() => Timer = maxTime;
 
         private IEnumerator StartLevelAsync()
         {

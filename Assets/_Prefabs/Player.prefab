@@ -1664,9 +1664,9 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   zombiePrefab: {fileID: 3961035976196756549, guid: 8dd26fa2f823e3c42bc01560def79317, type: 3}
-  spawnDistance: 30
-  spawnTime: 3
-  spawnAmount: 1
+  spawnDistance: 25
+  spawnTime: 5
+  spawnAmount: 2
 --- !u!1 &3716114063871305045
 GameObject:
   m_ObjectHideFlags: 0

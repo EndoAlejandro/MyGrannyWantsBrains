@@ -22,7 +22,7 @@ public class Zombie : MonoBehaviour
 
     public void Setup(PlayerController player)
     {
-        VfxManager.Instance.PlayFx(Vfx.ZombieSpawn, transform.position);
+        FxManager.Instance.PlayVfx(Vfx.ZombieSpawn, transform.position);
 
         _collider = GetComponent<Collider>();
         _navMeshAgent = GetComponent<NavMeshAgent>();
@@ -75,7 +75,7 @@ public class Zombie : MonoBehaviour
     public void TakeDamage(float incomingDamage)
     {
         health = Mathf.Max(health - incomingDamage, 0f);
-        VfxManager.Instance.PlayFx(Vfx.ZombieTakeDamage, transform.position + Vector3.up);
+        FxManager.Instance.PlayVfx(Vfx.ZombieTakeDamage, transform.position + Vector3.up);
 
         if (health <= 0f)
         {
@@ -88,8 +88,9 @@ public class Zombie : MonoBehaviour
 
     private IEnumerator DespawnAsync()
     {
+        FxManager.Instance.PlaySfx(Sfx.ZombieDeath);
         yield return new WaitForSeconds(2f);
-        VfxManager.Instance.PlayFx(Vfx.ZombieDespawn, transform.position);
+        FxManager.Instance.PlayVfx(Vfx.ZombieDespawn, transform.position);
         yield return null;
         Destroy(gameObject);
     }

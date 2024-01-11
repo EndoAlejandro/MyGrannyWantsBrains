@@ -1,6 +1,7 @@
 using System;
 using System.Collections;
 using CustomUtils;
+using PlayerComponents;
 using UnityEngine;
 
 [RequireComponent(typeof(Rigidbody))]
@@ -10,6 +11,7 @@ public class PlayerController : MonoBehaviour
     public static event Action OnPlayerDead;
     public static event Action<bool> OnGrannyGrab;
 
+    public bool IsGrabbingGranny { get; private set; }
     public float NormalizedSpeed => _rigidbody != null ? _rigidbody.velocity.magnitude / MaxSpeed : 0f;
     private static float Health = 1;
     private static float MaxHealth = 1;
@@ -32,9 +34,9 @@ public class PlayerController : MonoBehaviour
     [Header("Visuals")]
     [SerializeField] private Transform wheelchairPivot;
 
-    private float MaxSpeed => _isGrabbingGranny ? grannyMaxSpeed : walkMaxSpeed;
-    private float Acceleration => _isGrabbingGranny ? grannyAcceleration : walkAcceleration;
-    private float RotationSpeed => _isGrabbingGranny ? grannyRotationSpeed : walkRotationSpeed;
+    private float MaxSpeed => IsGrabbingGranny ? grannyMaxSpeed : walkMaxSpeed;
+    private float Acceleration => IsGrabbingGranny ? grannyAcceleration : walkAcceleration;
+    private float RotationSpeed => IsGrabbingGranny ? grannyRotationSpeed : walkRotationSpeed;
 
     private Rigidbody _rigidbody;
     private InputReader _input;
@@ -42,7 +44,7 @@ public class PlayerController : MonoBehaviour
     private GrannyController _grannyController;
 
     private Vector3 _movement;
-    private bool _isGrabbingGranny;
+
     private Collider _collider;
 
     private bool IsDead => Health <= 0f;
@@ -69,25 +71,25 @@ public class PlayerController : MonoBehaviour
 
     private void ToggleGrab()
     {
-        if (!_isGrabbingGranny)
+        if (!IsGrabbingGranny)
         {
-            _isGrabbingGranny = true;
+            IsGrabbingGranny = true;
             _grannyController.Grab(wheelchairPivot, _collider, _input);
         }
         else
         {
-            _isGrabbingGranny = false;
+            IsGrabbingGranny = false;
             _grannyController.Release();
         }
 
-        OnGrannyGrab?.Invoke(_isGrabbingGranny);
+        OnGrannyGrab?.Invoke(IsGrabbingGranny);
     }
 
     private void RotateModel()
     {
         Vector3 aimDirection = transform.forward;
 
-        if (_isGrabbingGranny)
+        if (IsGrabbingGranny)
         {
             Vector2 playerViewPort = Camera.main.WorldToViewportPoint(transform.position);
             var viewportDirection = (_input.Aim - playerViewPort).normalized;
@@ -119,7 +121,7 @@ public class PlayerController : MonoBehaviour
 
     private void OnTriggerExit(Collider other)
     {
-        if (!_isGrabbingGranny && other.TryGetComponent(out GrannyController grannyController))
+        if (!IsGrabbingGranny && other.TryGetComponent(out GrannyController grannyController))
             _grannyController = null;
     }
 
@@ -127,7 +129,7 @@ public class PlayerController : MonoBehaviour
     {
         Health = Mathf.Max(Health - damage, 0f);
 
-        VfxManager.Instance.PlayFx(Vfx.PlayerTakeDamage, transform.position + Vector3.up);
+        FxManager.Instance.PlayVfx(Vfx.PlayerTakeDamage, transform.position + Vector3.up);
         if (Health <= 0f)
         {
             _input.DisableInput();

@@ -22,7 +22,7 @@ public class GameManager : Singleton<GameManager>
     private IEnumerator GoToSceneAsync(string sceneName)
     {
         yield return SceneManager.LoadSceneAsync("Loading");
-        yield return new WaitForSeconds(1.2f);
+        yield return new WaitForSeconds(.2f);
         yield return SceneManager.LoadSceneAsync(sceneName, LoadSceneMode.Additive);
         yield return null;
         yield return SceneManager.UnloadSceneAsync("Loading");
