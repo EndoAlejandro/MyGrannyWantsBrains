@@ -18,7 +18,7 @@ namespace UiComponents
         }
 
         private void CreditsButtonPressed() => GameManager.Instance.GoToCredits();
-        private void StartButtonPressed() => GameManager.Instance.GoToGame();
+        private void StartButtonPressed() => GameManager.Instance.GoToCinematic();
         private void ExitButtonPressed() => Application.Quit();
     }
 }
