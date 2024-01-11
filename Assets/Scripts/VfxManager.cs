@@ -7,6 +7,8 @@ public enum Vfx
 {
     PlayerTakeDamage,
     ZombieTakeDamage,
+    ZombieSpawn,
+    ZombieDespawn,
     BulletDestroy,
     WalkDust,
 }
@@ -15,6 +17,8 @@ public class VfxManager : Singleton<VfxManager>
 {
     [SerializeField] private PoolAfterSeconds playerTakeDamage;
     [SerializeField] private PoolAfterSeconds zombieTakeDamage;
+    [SerializeField] private PoolAfterSeconds zombieSpawn;
+    [SerializeField] private PoolAfterSeconds zombieDespawn;
     [SerializeField] private PoolAfterSeconds bulletDestroy;
     [SerializeField] private PoolAfterSeconds walkDust;
 
@@ -28,6 +32,8 @@ public class VfxManager : Singleton<VfxManager>
         {
             { Vfx.PlayerTakeDamage, playerTakeDamage },
             { Vfx.ZombieTakeDamage, zombieTakeDamage },
+            { Vfx.ZombieSpawn, zombieSpawn },
+            { Vfx.ZombieDespawn, zombieDespawn },
             { Vfx.BulletDestroy, bulletDestroy },
             { Vfx.WalkDust, walkDust },
         };

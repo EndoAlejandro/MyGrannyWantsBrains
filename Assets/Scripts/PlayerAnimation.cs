@@ -1,6 +1,5 @@
 using UnityEngine;
 
-[RequireComponent(typeof(PlayerController))]
 public class PlayerAnimation : MonoBehaviour
 {
     private PlayerController _player;
@@ -10,8 +9,8 @@ public class PlayerAnimation : MonoBehaviour
 
     private void Awake()
     {
-        _player = GetComponent<PlayerController>();
-        _animator = GetComponentInChildren<Animator>();
+        _player = GetComponentInParent<PlayerController>();
+        _animator = GetComponent<Animator>();
     }
 
     private void Start()
@@ -31,6 +30,8 @@ public class PlayerAnimation : MonoBehaviour
     {
         _animator.SetLayerWeight(1, isGrabbed ? 1 : 0);
     }
+
+    private void WalkDust() => VfxManager.Instance.PlayFx(Vfx.WalkDust, transform.position);
 
     private void OnDestroy()
     {
